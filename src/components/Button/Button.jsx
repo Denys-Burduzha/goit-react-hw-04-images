@@ -3,10 +3,10 @@
 import PropTypes from 'prop-types';
 import styles from './Button.module.css';
 
-const LoadMoreButton = ({onButtonClick}) => {
-    return(
-        <div className={styles.BtnContainer}>
-            <button className={styles.Button} type='button' onClick={onButtonClick}>
+const LoadMoreButton = ({onClick}) => {
+    return (
+        <div className = {styles.BtnContainer}>
+            <button className = {styles.Button} type='button' onClick = {onClick}>
                 Load more
             </button>
         </div>
@@ -17,6 +17,6 @@ const LoadMoreButton = ({onButtonClick}) => {
 export default LoadMoreButton;
 
 LoadMoreButton.propTypes = {
-    onButtonClick: PropTypes.func,
+    onClick: PropTypes.func,
 };
 

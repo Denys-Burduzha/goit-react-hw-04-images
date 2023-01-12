@@ -1,103 +1,144 @@
 
 
-import React, { Component } from "react";
-import axios from "axios";
-import Notiflix from "notiflix";
 
-import { BASE_URL, API_KEY, SEARCH_PARAMS } from "./Pixabay/Pixabay";
-import Searchbar from "./Searchbar/Searchbar";
-import ImageGallery from "./ImageGallery/ImageGallery";
-import ImageGalleryItem from "./ImageGalleryItem/ImageGalleryItem";
-import LoadMoreButton from "./Button/Button"
-import SpinnerLoader from "./Loader/Loader"
-import Modal from "./Modal/Modal";
+// import React from 'react';
+// import { useState, useEffect } from 'react';
+// import fetchHits from './Fetch/Fetch';
+// import Searchbar from "./Searchbar/Searchbar";
+// import ImageGallery from "./ImageGallery/ImageGallery";
+// import SpinnerLoader from "./Loader/Loader";
 
 
- class App extends Component {
 
-  state = {
-    hits: [],
-    name: '',
-    page: 1,
-    showModal: false,
-    loading: false,
-    largeImegeURL: '',
-    tags: '',
+// const App = () => {
+//   const [hits, setHits] = useState([]);
+//   const [name, setName] = useState('');
+//   const [page, setPage] = useState(1);
+//   const [loading, setLoading] = useState(false);
+
+
+//   useEffect(() => {
+//     if (name) {
+//       fetchData();
+//     }
+// // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [name]);
+
+//   useEffect(() => {
+//     window.scrollTo({
+//       top: document.documentElement.scrollHeight,
+//       behavior: 'smooth'
+//     });
+//   });
+
+
+//   const handleSubmit = name => {
+//     setName(name);
+//     setHits([]);
+//     setPage(1);
+//   };
+
+//   const fetchData = () => {
+//     const options = {
+//       name, page
+//     };
+
+//     setLoading(true);
+
+//     fetchHits(options)
+//     .then(
+//       hits => setHits(prevState => [...prevState, ...hits]),
+//       setPage(prevState => prevState + 1)
+//     )
+//     .catch(error => {
+//       console.error('Error fetching data: ', error);
+//     })
+//     .finally(() => setLoading(false));
+
+//     fetchData();
+//   };
+  
+//   return (
+//     <div>
+
+//         <Searchbar onSubmit={handleSubmit} />
+//         {loading ? <SpinnerLoader /> : <ImageGallery 
+//           name={name}
+//           hits={hits}
+//           page={page}
+//           fetchData={fetchData} />}
+
+//     </div>
+//   );
+  
+// }
+
+// export default App;
+
+import React from 'react';
+import { useState, useEffect } from 'react';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import SpinnerLoader from "./Loader/Loader";
+import fetchHits from  './Fetch/Fetch'
+
+const App = () => {
+  const [hits, setHits] = useState([]);
+  const [name, setName] = useState('');
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (name) {
+      fetchData();
+    }
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name]);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  });
+
+  const handleSubmit = name => {
+    setName(name);
+    setHits([]);
+    setPage(1);
   };
 
-  toggleModal = (imageURL, tag) => {
-    this.setState(({showModal}) => ({
-      showModal: !showModal,
-      largeImegeURL: imageURL,
-      tags: tag,
-    }));
+
+  const fetchData = () => {
+    const options = {
+      name,
+      page
+    };
+
+    setLoading(true);
+
+    fetchHits(options)
+      .then(
+        hits => setHits(prevState => [...prevState, ...hits]),
+        setPage(prevState => prevState + 1)
+      )
+      .catch(error => {
+        console.error('Error fetching data: ', error);
+      })
+      .finally(() => setLoading(false));
   };
 
-  getValue = ({name, page}) => {
-    this.setState({loading: true});
-    try {
-      axios
-        .get(
-          `${BASE_URL}?key=${API_KEY}&q=${name}&page=${page}&${SEARCH_PARAMS}`
-        )
-        .then(response => {
-          if (!response.data.hits.length) {
-            Notiflix.Notify.failure('No images found!');
-          }
-          else if (name === this.state.name) {
-            this.setState(state => ({
-              hits: [...state.hits, ...response.data.hits],
-              name: name,
-              page: state.page + 1,
-              loading: false,
-            }));
-          }
-          else {
-            this.setState(state => ({
-              hits:response.data.hits,
-              name: name,
-              page: state.page + 1,
-              loading: false,
-            }));
-          }
-        });
-    } catch (error) {
-        console.error(error.message);
-    } 
-  };
+  return (
+    <div>
+      <Searchbar onSubmit={handleSubmit} />
+      {loading ? <SpinnerLoader /> : <ImageGallery
+        name={name}
+        hits={hits}
+        page={page}
+        fetchData={fetchData} />}
 
-
-
-  loadMore = () => {
-    this.getValue(this.state);
-  };
-
-
-  render () {
-    const {hits, showModal, loading, largeImegeURL, tags} = this.state;
-
-    return (
-      <div>
-
-         <Searchbar onSubmitHandler={this.getValue} />
-
-         {hits && (
-           <ImageGallery>
-             <ImageGalleryItem articles={hits} onImage={this.toggleModal} />
-           </ImageGallery>
-         )}
-
-         {showModal && (<Modal onClose={this.toggleModal} url={largeImegeURL} alt={tags} />)}
-
-         {loading && <SpinnerLoader />}
-
-         {hits.length > 0 && (
-          <LoadMoreButton onButtonClick={() => this.loadMore()} />
-         )}
-
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;
